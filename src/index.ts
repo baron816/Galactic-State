@@ -3,11 +3,12 @@ import * as React from "react";
 type Subscriber<T> = (val: T) => void;
 
 class Observer<T> {
-  subscribers = new Set<Subscriber<T>>();
+  subscribers: Set<Subscriber<T>>;
   value: T;
 
   constructor(val: T) {
     this.value = val;
+    this.subscribers = new Set<Subscriber<T>>();
   }
 
   unsubscribe(fn: Subscriber<T>): () => void {
