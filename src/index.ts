@@ -36,17 +36,21 @@ type NotFunction<T> = T extends Function ? never : T;
 /**
  * Returns a hook similar to useState, but will share state across components
  * regardless of Context
- * 
+ *
  * @param initialValue the default initial value the hook will receive
- * @param {function} [debugSubscriber] a callback function that will receive all updates.
+ * @param {function} [debugSubscriber] a callback function that will receive
+ * all updates.
  * Use only for debugging.
-*/
+ */
 export function createGalactic<S, T extends NotFunction<S>>(
   initialValue: T,
   debugSubscriber?: (hookState: T) => void
 ) {
-  if (typeof initialValue === "function" && process.env.NODE_ENV !== "production") {
-      throw Error("initial value must not be a function");
+  if (
+    typeof initialValue === "function" &&
+    process.env.NODE_ENV !== "production"
+  ) {
+    throw Error("initial value must not be a function");
   }
 
   const observer = new Observer(initialValue);
@@ -58,7 +62,10 @@ export function createGalactic<S, T extends NotFunction<S>>(
     observer.subscribe(debugSubscriber);
   }
 
-  return function useGalacticState(): [T, (val: T | ((oldVal: T) => T)) => void] {
+  return function useGalacticState(): [
+    T,
+    (val: T | ((oldVal: T) => T)) => void
+  ] {
     const [state, setState] = React.useState<T>(observer.value);
 
     React.useEffect(() => {
@@ -79,5 +86,5 @@ export function createGalactic<S, T extends NotFunction<S>>(
 }
 
 function isFunction(val: any): val is Function {
-    return typeof val === 'function';
+  return typeof val === "function";
 }
