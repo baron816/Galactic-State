@@ -2,6 +2,8 @@
 
 A "global" state library for React, with an API similar to `useState`.
 
+![NPM](https://img.shields.io/npm/l/galactic-state) ![npm](https://img.shields.io/npm/v/galactic-state)
+
 ## Install
 
 `npm i galactic-state`
