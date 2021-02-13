@@ -31,41 +31,25 @@ class Observer<T> {
   }
 }
 
-type NotFunction<T> = T extends Function ? never : T;
+type HookPair<T> = [T, (val: T | ((oldVal: T) => T)) => void];
 
 /**
  * Returns a hook similar to useState, but will share state across components
  * regardless of Context
  *
  * @param initialValue the default initial value the hook will receive
- * @param {function} [debugSubscriber] a callback function that will receive
- * all updates.
- * Use only for debugging.
+ * @param {function} [inclubserver] if true, function will return
+ * a tuple which will include the hook in the first position and
+ * the observer in the second. The observer can dispatch state
+ * updates and can allow subscriptions to state updates.
  */
-export function createGalactic<S, T extends NotFunction<S>>(
+export function createGalactic<T, R extends boolean = false>(
   initialValue: T,
-  debugSubscriber?: (hookState: T) => void
-) {
-  if (
-    typeof initialValue === "function" &&
-    process.env.NODE_ENV !== "production"
-  ) {
-    throw Error("initial value must not be a function");
-  }
-
+  includeObserver?: R
+): R extends true ? [() => HookPair<T>, Observer<T>] : () => HookPair<T> {
   const observer = new Observer(initialValue);
 
-  if (
-    typeof debugSubscriber === "function" &&
-    process.env.NODE_ENV !== "production"
-  ) {
-    observer.subscribe(debugSubscriber);
-  }
-
-  return function useGalacticState(): [
-    T,
-    (val: T | ((oldVal: T) => T)) => void
-  ] {
+  function useGalacticState() {
     const [state, setState] = React.useState<T>(observer.value);
 
     React.useEffect(() => {
@@ -82,7 +66,10 @@ export function createGalactic<S, T extends NotFunction<S>>(
     }, []);
 
     return [state, setSubject];
-  };
+  }
+
+  // @ts-ignore
+  return includeObserver ? [useGalacticState, observer] : useGalacticState;
 }
 
 function isFunction(val: any): val is Function {
