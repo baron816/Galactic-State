@@ -1,17 +1,19 @@
 {
   "name": "galactic-state",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "Simplified global React state",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "lint": "eslint ./src/**",
     "test": "jest --watch",
     "clean": "rm -rf dist && mkdir dist",
     "build": "npm run clean && npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel src --out-dir dist --extensions \".ts,.txt\" --source-maps inline",
     "prepare": "npm run build",
-    "ts": "tsc --noEmit"
+    "ts": "tsc --noEmit",
+    "verify": "npm run ts && npm run lint && jest"
   },
   "repository": {
     "type": "git",
@@ -32,14 +34,17 @@
     "@babel/eslint-parser": "^7.12.1",
     "@babel/preset-env": "^7.12.7",
     "@babel/preset-typescript": "^7.12.7",
+    "@testing-library/react-hooks": "^5.0.3",
     "@types/jest": "^26.0.16",
     "@types/react": "^17.0.0",
     "babel-jest": "^26.6.3",
     "eslint": "^7.17.0",
     "eslint-config-baron": "^1.0.0",
     "eslint-config-prettier": "^7.1.0",
+    "eslint-plugin-prettier": "^3.3.1",
     "jest": "^26.6.3",
     "prettier": "^2.2.1",
+    "react-test-renderer": "^17.0.1",
     "ts-jest": "^26.4.4",
     "typescript": "^4.1.2"
   },
