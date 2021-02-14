@@ -43,10 +43,16 @@ const [useUserSettings, UserSettingsObserver] = createGalactic({ ... }, true);
 export useUserSettings;
 export isLoggedInObserver;
 
+export const [useUserSettings, UserSettingsObserver] = createGalactic({ ... }, true);
+
+// Update state from server websocket
+
 UserSettingsWebSocket.subscribe((serverSettings) => {
     UserSettingsObserver.update(serverSettings);
 });
 
+
+// Listen to state changes on server
 UserSettingsObserver.subscribe((settingsUpdate) => {
     console.log('User settings updated to', settingsUpdate);
 })

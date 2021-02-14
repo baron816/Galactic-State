@@ -22,8 +22,13 @@ class Observer<T> {
     return this.unsubscribe(fn);
   }
 
-  update(newVal: T): void {
-    this.value = newVal;
+  update(value: T | ((oldValue: T) => T)): void {
+    if (isFunction(value)) {
+      const newVal = value(this.value);
+      this.value = newVal;
+    } else {
+      this.value = value;
+    }
 
     for (const sub of this.subscribers) {
       sub(this.value);
@@ -57,12 +62,7 @@ export function createGalactic<T, R extends boolean = false>(
     }, []);
 
     const setSubject = React.useCallback((val: T | ((oldVal: T) => T)) => {
-      if (isFunction(val)) {
-        const newVal = val(observer.value);
-        observer.update(newVal);
-      } else {
-        observer.update(val as Exclude<T, Function>);
-      }
+      observer.update(val);
     }, []);
 
     return [state, setSubject];

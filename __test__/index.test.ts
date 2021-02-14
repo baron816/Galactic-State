@@ -24,7 +24,7 @@ describe("GalacticState", () => {
       expect(result2.current[0]).toBe(1);
     });
 
-    test("update value with cb", () => {
+    test("update value with callback", () => {
       const useCounter = createGalactic(0);
       const { result: result1, rerender: rerender1 } = renderHook(() =>
         useCounter()
@@ -93,6 +93,27 @@ describe("GalacticState", () => {
 
       act(() => {
         counterObserver.update(55);
+      });
+
+      rerender1();
+      rerender2();
+
+      expect(result1.current[0]).toBe(55);
+      expect(result2.current[0]).toBe(55);
+    });
+
+    test("observer updates component states using callback", () => {
+      const [useCounter, counterObserver] = createGalactic(0, true);
+
+      const { result: result1, rerender: rerender1 } = renderHook(() =>
+        useCounter()
+      );
+      const { result: result2, rerender: rerender2 } = renderHook(() =>
+        useCounter()
+      );
+
+      act(() => {
+        counterObserver.update((currentVal) => currentVal + 55);
       });
 
       rerender1();
