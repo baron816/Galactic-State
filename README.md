@@ -1,8 +1,12 @@
 # Galactic State
 
+<p align="center">
+    <img alt="galaxy" src="https://astronomy.com/-/media/Images/andromeda.jpg?mw=600" />
+</p>
+
 A "global" state library for React, with an API similar to `useState`.
 
-![NPM](https://img.shields.io/npm/l/galactic-state) ![npm](https://img.shields.io/npm/v/galactic-state)
+![NPM](https://img.shields.io/npm/l/galactic-state) ![npm](https://img.shields.io/npm/v/galactic-state) ![NPM](https://img.shields.io/bundlephobia/minzip/galactic-state)
 
 ## Install
 
