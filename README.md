@@ -10,54 +10,94 @@ A "global" state library for React, with an API similar to `useState`.
 
 ## Usage
 
-`createGalactic` receives a single argument, which corresponds to the default state value. It returns a hook, and that hook returns a tuple array with the current value itself in the first position, and a setter function in the second position. The setter function works like `useStates` (if called with a callback function, that callback has a parameter for the current state value). Any component that uses that hook returned from `createGalactic` will correctly update if another component anywhere in the app "sets" the value.
+`createGalactic` receives a single argument, which corresponds to the default state value. It returns a tuple with a hook in the first position that works like `useState`, but whose state will be "global", ie any component that uses it will update when its value gets updated.
 
 ```typescript
 // state.js
 import { createGalactic } from 'galactic-state';
 
-export const useEmail = createGalactic('');
-export const usePassword = createGalactic('');
+export const [useEmail] = createGalactic('');
+export const [usePassword] = createGalactic('');
 
 ...
-// Login.jsx
+// Components.jsx
 import { useEmail, usePassword } from 'src/state';
 
-function Login(props) {
+function Login() {
     const [email, setEmail] = useEmail();
     const [password, setPassword] = usePassword();
 
-    ...
+    return (
+        <div>
+          <input 
+            type='email'
+            onChange={e => setEmail(e.target.value)}
+            value={email}
+          />
+          <input 
+            type='password'
+            onChange={e => setEmail(e.target.value)}
+            value={password}
+          />
+        </div>
+    );
+}
+
+function OtherComponent() {
+    const [email] = useEmail();
+
+    return (
+        <h1>{email}</h1> // will update when `setEmail` is called in `Login` Component
+    );
+}
+
+function App() {
+    return (
+        <div>
+            <OtherComponent />
+            <Login />
+        </div>
+    );
 }
 
 ```
 
-### Observer
-If you pass an optional second `true` argment to `createGalactic`, it will return a tuple, with the hook in the first position, and an "observer" in the second.
+### Setter
+The second value in the tuple returned from `createGalactic` is a setter function that can be called from anywhere. This is the exact same setter that is returned from the generated hook, and it will have the same function.
 
-This observer can be used to listen to state changes OR update your state outside of the component tree.
+If you have a component that is just setting state and not consuming the state value, you can use this setter instead to prevent unnecessary rerendering of your component.
 
-```typescript
-// UserSettings.js
-const [useUserSettings, UserSettingsObserver] = createGalactic({ ... }, true);
-export useUserSettings;
-export isLoggedInObserver;
+You could also use this within a websocket connection to sync your server state and your client state.
 
-export const [useUserSettings, UserSettingsObserver] = createGalactic({ ... }, true);
+```javascript
+// state.js
+export const [useIsAuthenticated, setIsAuthenticated] = createGalactic(false);
 
-// Update state from server websocket
+// Login.jsx
+import { setIsAuthenticated } from 'src/state';
 
-UserSettingsWebSocket.subscribe((serverSettings) => {
-    UserSettingsObserver.update(serverSettings);
-});
+function Login() {
+    ...
 
+    return (
+        <form onSubmit={async () => {
+            const isAuthenticated = await serverValidateCredentials(email, password);
+            setIsAuthenticated(isAuthenticated);
+        }}>
+            ...
+        </form>
+    )
+}
 
-// Listen to state changes on server
-UserSettingsObserver.subscribe((settingsUpdate) => {
-    console.log('User settings updated to', settingsUpdate);
+// Logs out user from the server (for security reasons).
+ServiceAuthenticationValidWS.subscribe(isAuthenticated => {
+    setIsAuthenticated(isAuthenticated)
 })
 
 ```
+
+### Observer
+The third value in the tuple is an observer, which can be used to subscribe to state changes from anywhere in the app, not necessarily within a component.
 
 ## FAQ
 

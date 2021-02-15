@@ -4,7 +4,7 @@ import { createGalactic } from "../src";
 describe("GalacticState", () => {
   describe("without observer", () => {
     test("value update across components", () => {
-      const useCounter = createGalactic(0);
+      const [useCounter, setCounter] = createGalactic(0);
 
       const { result: result1, rerender: rerender1 } = renderHook(() =>
         useCounter()
@@ -14,7 +14,7 @@ describe("GalacticState", () => {
       );
 
       act(() => {
-        result1.current[1](1);
+        setCounter(1);
       });
 
       rerender1();
@@ -25,7 +25,7 @@ describe("GalacticState", () => {
     });
 
     test("update value with callback", () => {
-      const useCounter = createGalactic(0);
+      const [useCounter, setCounter] = createGalactic(0);
       const { result: result1, rerender: rerender1 } = renderHook(() =>
         useCounter()
       );
@@ -34,7 +34,7 @@ describe("GalacticState", () => {
       );
 
       act(() => {
-        result1.current[1]((current) => current + 1);
+        setCounter((current) => current + 1);
       });
 
       rerender1();
@@ -47,7 +47,7 @@ describe("GalacticState", () => {
 
   describe("with observer", () => {
     test("observer receives state updates", () => {
-      const [useCounter, counterObserver] = createGalactic(0, true);
+      const [useCounter, setCounter, counterObserver] = createGalactic(0);
 
       const { result: result1, rerender: rerender1 } = renderHook(() =>
         useCounter()
@@ -61,7 +61,7 @@ describe("GalacticState", () => {
       counterObserver.subscribe(counterSub);
 
       act(() => {
-        result1.current[1](1);
+        setCounter(1);
       });
 
       rerender1();
@@ -72,7 +72,7 @@ describe("GalacticState", () => {
       expect(counterSub).toHaveBeenCalledWith(1);
 
       act(() => {
-        result2.current[1](55);
+        setCounter(55);
       });
 
       rerender1();
@@ -82,7 +82,7 @@ describe("GalacticState", () => {
     });
 
     test("observer updates component states", () => {
-      const [useCounter, counterObserver] = createGalactic(0, true);
+      const [useCounter, setCounter] = createGalactic(0);
 
       const { result: result1, rerender: rerender1 } = renderHook(() =>
         useCounter()
@@ -92,7 +92,7 @@ describe("GalacticState", () => {
       );
 
       act(() => {
-        counterObserver.update(55);
+        setCounter(55);
       });
 
       rerender1();
@@ -103,7 +103,7 @@ describe("GalacticState", () => {
     });
 
     test("observer updates component states using callback", () => {
-      const [useCounter, counterObserver] = createGalactic(0, true);
+      const [useCounter, setCounter] = createGalactic(0);
 
       const { result: result1, rerender: rerender1 } = renderHook(() =>
         useCounter()
@@ -113,7 +113,7 @@ describe("GalacticState", () => {
       );
 
       act(() => {
-        counterObserver.update((currentVal) => currentVal + 55);
+        setCounter((currentVal) => currentVal + 55);
       });
 
       rerender1();
