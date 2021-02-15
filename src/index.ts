@@ -36,42 +36,37 @@ class Observer<T> {
   }
 }
 
-type HookPair<T> = [T, (val: T | ((oldVal: T) => T)) => void];
+function isFunction(val: any): val is Function {
+  return typeof val === "function";
+}
+
+type Setter<T> = (newValue: T | ((oldVal: T) => T)) => void;
 
 /**
- * Returns a hook similar to useState, but will share state across components
- * regardless of Context
+ * Returns a tuple of [0] a hook that works like useState, but for state across
+ * components, [1] a setter that sets state, regardless on context, and [2] an
+ * observer that accepts subscriptions to state updates.
  *
  * @param initialValue the default initial value the hook will receive
- * @param {function} [inclubserver] if true, function will return
- * a tuple which will include the hook in the first position and
- * the observer in the second. The observer can dispatch state
- * updates and can allow subscriptions to state updates.
  */
-export function createGalactic<T, R extends boolean = false>(
-  initialValue: T,
-  includeObserver?: R
-): R extends true ? [() => HookPair<T>, Observer<T>] : () => HookPair<T> {
+export function createGalactic<T>(
+  initialValue: T
+): [() => [T, Setter<T>], Setter<T>, Observer<T>] {
   const observer = new Observer(initialValue);
 
-  function useGalacticState() {
+  function useGalacticState(): [T, Setter<T>] {
     const [state, setState] = React.useState<T>(observer.value);
 
     React.useEffect(() => {
       return observer.subscribe(setState);
     }, []);
 
-    const setSubject = React.useCallback((val: T | ((oldVal: T) => T)) => {
-      observer.update(val);
-    }, []);
-
-    return [state, setSubject];
+    return React.useMemo(() => [state, setGalacticState], [state]);
   }
 
-  // @ts-ignore
-  return includeObserver ? [useGalacticState, observer] : useGalacticState;
-}
+  function setGalacticState(newVal: T | ((oldVal: T) => T)) {
+    observer.update(newVal);
+  }
 
-function isFunction(val: any): val is Function {
-  return typeof val === "function";
+  return [useGalacticState, setGalacticState, observer];
 }
