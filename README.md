@@ -40,7 +40,7 @@ function Login() {
           />
           <input 
             type='password'
-            onChange={e => setEmail(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
             value={password}
           />
         </div>
